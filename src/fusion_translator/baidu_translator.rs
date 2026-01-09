@@ -1,7 +1,9 @@
+use crate::fusion_translator::async_translator::{
+    AsyncTranslator, Language, TranslationListOutput, TranslationOutput,
+};
+use crate::fusion_translator::translator_error::{ApiError, TranslatorError};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
-use crate::fusion_translator::async_translator::{AsyncTranslator, Language, TranslationListOutput, TranslationOutput};
-use crate::fusion_translator::translator_error::{ApiError, TranslatorError};
 
 /// 百度翻译器实现
 ///
@@ -43,7 +45,9 @@ impl AsyncTranslator for BaiduTranslator {
     ) -> anyhow::Result<TranslationOutput> {
         let to = to.to_baidu().ok_or(TranslatorError::UnknownLanguage(*to))?;
         let from = match from {
-            Some(item) => item.to_baidu().ok_or(TranslatorError::UnknownLanguage(item))?,
+            Some(item) => item
+                .to_baidu()
+                .ok_or(TranslatorError::UnknownLanguage(item))?,
             None => "auto",
         };
         let form = Form::new(&self.app_id, query, "0", &self.key, from, to);
@@ -73,7 +77,8 @@ impl AsyncTranslator for BaiduTranslator {
                 .collect::<Vec<_>>()
                 .join("\n"),
             lang: Some(
-                Language::from_baidu(&resp.to).ok_or(TranslatorError::CouldNotMapLanguage(Some(resp.to)))?,
+                Language::from_baidu(&resp.to)
+                    .ok_or(TranslatorError::CouldNotMapLanguage(Some(resp.to)))?,
             ),
         })
     }
@@ -286,9 +291,9 @@ struct TranslationResponse {
 #[cfg(test)]
 mod tests {
 
-    use std::collections::HashSet;
     use crate::fusion_translator::async_translator::{AsyncTranslator, Language};
     use crate::fusion_translator::baidu_translator::{BaiduTranslator, Form};
+    use std::collections::HashSet;
 
     /// 测试翻译器实例创建
     ///
@@ -423,7 +428,7 @@ mod tests {
         let result = translator
             .translate("你好世界", Some(Language::Chinese), &Language::English)
             .await;
-        
+
         match result {
             Ok(output) => {
                 assert!(!output.text.is_empty());
@@ -432,14 +437,19 @@ mod tests {
             Err(e) => {
                 let err_msg = e.to_string();
                 println!("中译英错误: {}", err_msg);
-                
-                if let Some(api_err) = e.downcast_ref::<crate::fusion_translator::translator_error::TranslatorError>() {
+
+                if let Some(api_err) =
+                    e.downcast_ref::<crate::fusion_translator::translator_error::TranslatorError>()
+                {
                     println!("错误类型: {:?}", api_err);
-                    if let crate::fusion_translator::translator_error::TranslatorError::ApiError(api_details) = api_err {
+                    if let crate::fusion_translator::translator_error::TranslatorError::ApiError(
+                        api_details,
+                    ) = api_err
+                    {
                         println!("API错误详情: {:?}", api_details);
                     }
                 }
-                
+
                 panic!("翻译失败: {}", err_msg);
             }
         }
@@ -460,7 +470,7 @@ mod tests {
         let result = translator
             .translate("Hello World", Some(Language::English), &Language::Chinese)
             .await;
-        
+
         match result {
             Ok(output) => {
                 assert!(!output.text.is_empty());
@@ -469,14 +479,19 @@ mod tests {
             Err(e) => {
                 let err_msg = e.to_string();
                 println!("英译中错误: {}", err_msg);
-                
-                if let Some(api_err) = e.downcast_ref::<crate::fusion_translator::translator_error::TranslatorError>() {
+
+                if let Some(api_err) =
+                    e.downcast_ref::<crate::fusion_translator::translator_error::TranslatorError>()
+                {
                     println!("错误类型: {:?}", api_err);
-                    if let crate::fusion_translator::translator_error::TranslatorError::ApiError(api_details) = api_err {
+                    if let crate::fusion_translator::translator_error::TranslatorError::ApiError(
+                        api_details,
+                    ) = api_err
+                    {
                         println!("API错误详情: {:?}", api_details);
                     }
                 }
-                
+
                 panic!("翻译失败: {}", err_msg);
             }
         }

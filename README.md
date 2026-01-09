@@ -341,7 +341,6 @@ Issues and Pull Requests are welcome!
 If you have any questions or suggestions, please contact us through:
 
 - Create an [Issue](https://github.com/tornado-product/FusionTranslator/issues)
-- Send an email to: 63542424@163.com
 
 ## 🙏 Acknowledgments
 

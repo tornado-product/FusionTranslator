@@ -1,6 +1,8 @@
-use crate::fusion_translator::async_translator::{AsyncTranslator, Language, TranslationListOutput, TranslationOutput};
+use crate::fusion_translator::async_translator::{
+    AsyncTranslator, Language, TranslationListOutput, TranslationOutput,
+};
 use crate::fusion_translator::translator_error::TranslatorError;
-use reqwest::{Client, header::REFERER};
+use reqwest::{header::REFERER, Client};
 use serde_json::Value;
 
 /// MyMemory翻译器实现
@@ -34,7 +36,10 @@ impl Default for MyMemoryTranslator {
 /// - `Err(TranslatorError::RequestToLong)` - 长度超出限制
 pub fn input_limit_checker(query: &str, input_limit: u32) -> Result<(), TranslatorError> {
     if query.len() > input_limit as usize {
-        return Err(TranslatorError::RequestToLong(query.len() as u32, input_limit));
+        return Err(TranslatorError::RequestToLong(
+            query.len() as u32,
+            input_limit,
+        ));
     }
     Ok(())
 }
@@ -66,7 +71,9 @@ impl AsyncTranslator for MyMemoryTranslator {
         input_limit_checker(query, self.input_limit)?;
         let _from_orig = from;
         let _from = match _from_orig {
-            Some(lang) => lang.to_mymemory().ok_or(TranslatorError::UnknownLanguage(lang))?,
+            Some(lang) => lang
+                .to_mymemory()
+                .ok_or(TranslatorError::UnknownLanguage(lang))?,
             None => "Autodetect",
         };
 
@@ -75,7 +82,8 @@ impl AsyncTranslator for MyMemoryTranslator {
             self.host,
             query,
             _from,
-            to.to_mymemory().ok_or(TranslatorError::UnknownLanguage(*to))?
+            to.to_mymemory()
+                .ok_or(TranslatorError::UnknownLanguage(*to))?
         );
 
         let response = self

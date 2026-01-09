@@ -343,7 +343,6 @@ SOFTWARE.
 如果你有任何问题或建议，请通过以下方式联系：
 
 - 创建 [Issue](https://github.com/tornado-product/FusionTranslator/issues)
-- 发送邮件至：63542424@163.com
 
 ## 🙏 致谢
 

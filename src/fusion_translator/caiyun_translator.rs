@@ -1,4 +1,6 @@
-use crate::fusion_translator::async_translator::{AsyncTranslator, Language, TranslationListOutput, TranslationOutput};
+use crate::fusion_translator::async_translator::{
+    AsyncTranslator, Language, TranslationListOutput, TranslationOutput,
+};
 use crate::fusion_translator::translator_error::TranslatorError;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
@@ -66,9 +68,7 @@ impl AsyncTranslator for CaiyunTranslator {
         from: Option<Language>,
         to: &Language,
     ) -> anyhow::Result<TranslationOutput> {
-        let mut v = self
-            .translate_vec(&[query.to_owned()], from, to)
-            .await?;
+        let mut v = self.translate_vec(&[query.to_owned()], from, to).await?;
         Ok(TranslationOutput {
             text: v.text.remove(0),
             lang: Some(*to),
@@ -92,14 +92,17 @@ impl AsyncTranslator for CaiyunTranslator {
     ) -> anyhow::Result<TranslationListOutput> {
         let f = from;
         let from = match from {
-            Some(from) => from.to_caiyun().ok_or(TranslatorError::UnknownLanguage(from))?,
+            Some(from) => from
+                .to_caiyun()
+                .ok_or(TranslatorError::UnknownLanguage(from))?,
             None => "auto",
         };
 
         let trans_type = format!(
             "{}2{}",
             from,
-            to.to_caiyun().ok_or(TranslatorError::UnknownLanguage(*to))?
+            to.to_caiyun()
+                .ok_or(TranslatorError::UnknownLanguage(*to))?
         );
 
         let request = CaiyunRequest {

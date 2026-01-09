@@ -1,10 +1,12 @@
-use std::time::{SystemTime, UNIX_EPOCH};
-use crate::fusion_translator::async_translator::{AsyncTranslator, Language, TranslationListOutput, TranslationOutput};
+use crate::fusion_translator::async_translator::{
+    AsyncTranslator, Language, TranslationListOutput, TranslationOutput,
+};
 use crate::fusion_translator::translator_error::TranslatorError;
 use rand::Rng as _;
-use reqwest::{Client, header::CONTENT_TYPE};
+use reqwest::{header::CONTENT_TYPE, Client};
 use serde::Deserialize;
 use sha2::{Digest, Sha256};
+use std::time::{SystemTime, UNIX_EPOCH};
 use uuid::{Context, Timestamp, Uuid};
 
 /// 有道翻译器实现
@@ -102,9 +104,7 @@ impl AsyncTranslator for YoudaoTranslator {
         from: Option<Language>,
         to: &Language,
     ) -> anyhow::Result<TranslationOutput> {
-        let mut t = self
-            .translate_vec(&[query.to_owned()], from, to)
-            .await?;
+        let mut t = self.translate_vec(&[query.to_owned()], from, to).await?;
         Ok(TranslationOutput {
             text: t.text.remove(0),
             lang: Some(*to),
@@ -141,7 +141,9 @@ impl AsyncTranslator for YoudaoTranslator {
             self.app_secret
         );
         let from = match from {
-            Some(from) => from.to_youdao().ok_or(TranslatorError::UnknownLanguage(from))?,
+            Some(from) => from
+                .to_youdao()
+                .ok_or(TranslatorError::UnknownLanguage(from))?,
             None => "auto",
         };
         let data: Resp = self
@@ -150,7 +152,11 @@ impl AsyncTranslator for YoudaoTranslator {
             .header(CONTENT_TYPE, "application/x-www-form-urlencoded")
             .form(&[
                 ("from", from),
-                ("to", to.to_youdao().ok_or(TranslatorError::UnknownLanguage(*to))?),
+                (
+                    "to",
+                    to.to_youdao()
+                        .ok_or(TranslatorError::UnknownLanguage(*to))?,
+                ),
                 ("signType", "v3"),
                 ("curtime", &curtime.to_string()),
                 ("appKey", self.app_key.as_str()),
@@ -209,7 +215,7 @@ fn truncate(s: &str) -> String {
 mod tests {
 
     use crate::fusion_translator::async_translator::{AsyncTranslator as _, Language};
-    use crate::fusion_translator::youdao_translator::{YoudaoTranslator, sha256_encode, truncate};
+    use crate::fusion_translator::youdao_translator::{sha256_encode, truncate, YoudaoTranslator};
 
     /// 测试翻译器实例创建
     ///
@@ -385,7 +391,8 @@ mod tests {
     async fn test_translate_chinese_to_english() {
         dotenv::dotenv().ok();
         let app_key = std::env::var("YOUDAO_APP_KEY").expect("请设置 YOUDAO_APP_KEY 环境变量");
-        let app_secret = std::env::var("YOUDAO_APP_SECRET").expect("请设置 YOUDAO_APP_SECRET 环境变量");
+        let app_secret =
+            std::env::var("YOUDAO_APP_SECRET").expect("请设置 YOUDAO_APP_SECRET 环境变量");
         let translator = YoudaoTranslator::new(&app_key, &app_secret);
         let result = translator
             .translate("你好世界", Some(Language::Chinese), &Language::English)
@@ -404,7 +411,8 @@ mod tests {
     async fn test_translate_english_to_chinese() {
         dotenv::dotenv().ok();
         let app_key = std::env::var("YOUDAO_APP_KEY").expect("请设置 YOUDAO_APP_KEY 环境变量");
-        let app_secret = std::env::var("YOUDAO_APP_SECRET").expect("请设置 YOUDAO_APP_SECRET 环境变量");
+        let app_secret =
+            std::env::var("YOUDAO_APP_SECRET").expect("请设置 YOUDAO_APP_SECRET 环境变量");
         let translator = YoudaoTranslator::new(&app_key, &app_secret);
         let result = translator
             .translate("Hello World", Some(Language::English), &Language::Chinese)

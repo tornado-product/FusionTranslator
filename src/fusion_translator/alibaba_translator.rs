@@ -1,4 +1,6 @@
-use crate::fusion_translator::async_translator::{AsyncTranslator, Language, TranslationListOutput, TranslationOutput};
+use crate::fusion_translator::async_translator::{
+    AsyncTranslator, Language, TranslationListOutput, TranslationOutput,
+};
 use crate::fusion_translator::translator_error::TranslatorError;
 use reqwest::Client;
 use serde_json::Value;
@@ -33,7 +35,10 @@ impl Default for AlibabaTranslator {
 /// - `Err(TranslatorError::RequestToLong)` - 长度超出限制
 pub fn input_limit_checker(query: &str, input_limit: u32) -> Result<(), TranslatorError> {
     if query.len() > input_limit as usize {
-        return Err(TranslatorError::RequestToLong(query.len() as u32, input_limit));
+        return Err(TranslatorError::RequestToLong(
+            query.len() as u32,
+            input_limit,
+        ));
     }
     Ok(())
 }
@@ -65,7 +70,9 @@ impl AsyncTranslator for AlibabaTranslator {
         input_limit_checker(query, self.input_limit)?;
         let _from_orig = from;
         let _from = match _from_orig {
-            Some(lang) => lang.to_mymemory_short().ok_or(TranslatorError::UnknownLanguage(lang))?,
+            Some(lang) => lang
+                .to_mymemory_short()
+                .ok_or(TranslatorError::UnknownLanguage(lang))?,
             None => "auto",
         };
 
@@ -75,14 +82,11 @@ impl AsyncTranslator for AlibabaTranslator {
             "general",
             query,
             _from,
-            to.to_mymemory_short().ok_or(TranslatorError::UnknownLanguage(*to))?
+            to.to_mymemory_short()
+                .ok_or(TranslatorError::UnknownLanguage(*to))?
         );
 
-        let response = self
-            .client
-            .get(&url)
-            .send()
-            .await?;
+        let response = self.client.get(&url).send().await?;
 
         if !response.status().is_success() {
             return Err(TranslatorError::RequestFailed(response.status().as_u16()).into());
@@ -151,8 +155,8 @@ impl AlibabaTranslator {
 
 #[cfg(test)]
 mod tests {
-    use crate::fusion_translator::async_translator::AsyncTranslator;
     use crate::fusion_translator::alibaba_translator::AlibabaTranslator;
+    use crate::fusion_translator::async_translator::AsyncTranslator;
 
     /// 测试创建翻译器实例
     #[tokio::test]

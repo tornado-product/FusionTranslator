@@ -73,18 +73,15 @@ impl TranslatorFactory {
             TranslatorConfig::Baidu { app_id, key } => {
                 Arc::new(BaiduTranslator::new(&app_id, &key))
             }
-            TranslatorConfig::Youdao { app_key, app_secret } => {
-                Arc::new(YoudaoTranslator::new(&app_key, &app_secret))
-            }
-            TranslatorConfig::Alibaba { .. } => {
-                Arc::new(AlibabaTranslator::new())
-            }
+            TranslatorConfig::Youdao {
+                app_key,
+                app_secret,
+            } => Arc::new(YoudaoTranslator::new(&app_key, &app_secret)),
+            TranslatorConfig::Alibaba { .. } => Arc::new(AlibabaTranslator::new()),
             TranslatorConfig::Caiyun { token, request_id } => {
                 Arc::new(CaiyunTranslator::new(&token, &request_id))
             }
-            TranslatorConfig::MyMemory => {
-                Arc::new(MyMemoryTranslator::new())
-            }
+            TranslatorConfig::MyMemory => Arc::new(MyMemoryTranslator::new()),
         }
     }
 
@@ -105,7 +102,9 @@ impl TranslatorFactory {
     }
 
     /// 从环境变量创建翻译器（便捷方法）
-    pub fn create_from_env(translator_type: TranslatorType) -> Result<Arc<dyn AsyncTranslator>, String> {
+    pub fn create_from_env(
+        translator_type: TranslatorType,
+    ) -> Result<Arc<dyn AsyncTranslator>, String> {
         match translator_type {
             TranslatorType::Baidu => {
                 let app_id = std::env::var("BAIDU_APP_ID")
@@ -125,7 +124,8 @@ impl TranslatorFactory {
             TranslatorType::Caiyun => {
                 let token = std::env::var("CAIYUN_TOKEN")
                     .map_err(|_| "CAIYUN_TOKEN environment variable not set")?;
-                let request_id = std::env::var("CAIYUN_REQUEST_ID").unwrap_or_else(|_| "demo".to_string());
+                let request_id =
+                    std::env::var("CAIYUN_REQUEST_ID").unwrap_or_else(|_| "demo".to_string());
                 Ok(Arc::new(CaiyunTranslator::new(&token, &request_id)))
             }
             TranslatorType::MyMemory => Ok(Arc::new(MyMemoryTranslator::new())),
@@ -142,12 +142,24 @@ mod tests {
         assert_eq!(TranslatorType::parse("baidu"), Some(TranslatorType::Baidu));
         assert_eq!(TranslatorType::parse("Baidu"), Some(TranslatorType::Baidu));
         assert_eq!(TranslatorType::parse("BAIDU"), Some(TranslatorType::Baidu));
-        assert_eq!(TranslatorType::parse("youdao"), Some(TranslatorType::Youdao));
-        assert_eq!(TranslatorType::parse("alibaba"), Some(TranslatorType::Alibaba));
+        assert_eq!(
+            TranslatorType::parse("youdao"),
+            Some(TranslatorType::Youdao)
+        );
+        assert_eq!(
+            TranslatorType::parse("alibaba"),
+            Some(TranslatorType::Alibaba)
+        );
         assert_eq!(TranslatorType::parse("ali"), Some(TranslatorType::Alibaba));
-        assert_eq!(TranslatorType::parse("caiyun"), Some(TranslatorType::Caiyun));
+        assert_eq!(
+            TranslatorType::parse("caiyun"),
+            Some(TranslatorType::Caiyun)
+        );
         assert_eq!(TranslatorType::parse("彩云"), Some(TranslatorType::Caiyun));
-        assert_eq!(TranslatorType::parse("mymemory"), Some(TranslatorType::MyMemory));
+        assert_eq!(
+            TranslatorType::parse("mymemory"),
+            Some(TranslatorType::MyMemory)
+        );
         assert_eq!(TranslatorType::parse("unknown"), None);
     }
 
@@ -156,12 +168,24 @@ mod tests {
         assert_eq!(TranslatorType::from_str("baidu"), Ok(TranslatorType::Baidu));
         assert_eq!(TranslatorType::from_str("Baidu"), Ok(TranslatorType::Baidu));
         assert_eq!(TranslatorType::from_str("BAIDU"), Ok(TranslatorType::Baidu));
-        assert_eq!(TranslatorType::from_str("youdao"), Ok(TranslatorType::Youdao));
-        assert_eq!(TranslatorType::from_str("alibaba"), Ok(TranslatorType::Alibaba));
+        assert_eq!(
+            TranslatorType::from_str("youdao"),
+            Ok(TranslatorType::Youdao)
+        );
+        assert_eq!(
+            TranslatorType::from_str("alibaba"),
+            Ok(TranslatorType::Alibaba)
+        );
         assert_eq!(TranslatorType::from_str("ali"), Ok(TranslatorType::Alibaba));
-        assert_eq!(TranslatorType::from_str("caiyun"), Ok(TranslatorType::Caiyun));
+        assert_eq!(
+            TranslatorType::from_str("caiyun"),
+            Ok(TranslatorType::Caiyun)
+        );
         assert_eq!(TranslatorType::from_str("彩云"), Ok(TranslatorType::Caiyun));
-        assert_eq!(TranslatorType::from_str("mymemory"), Ok(TranslatorType::MyMemory));
+        assert_eq!(
+            TranslatorType::from_str("mymemory"),
+            Ok(TranslatorType::MyMemory)
+        );
         assert_eq!(TranslatorType::from_str("unknown"), Err(()));
     }
 
@@ -178,10 +202,7 @@ mod tests {
     async fn test_create_baidu_translator() {
         let app_id = std::env::var("BAIDU_APP_ID").expect("请设置 BAIDU_APP_ID 环境变量");
         let key = std::env::var("BAIDU_KEY").expect("请设置 BAIDU_KEY 环境变量");
-        let config = TranslatorConfig::Baidu {
-            app_id,
-            key,
-        };
+        let config = TranslatorConfig::Baidu { app_id, key };
         let translator = TranslatorFactory::create(config);
         assert!(!translator.local());
     }
@@ -224,11 +245,8 @@ mod tests {
 
     #[tokio::test]
     async fn test_create_from_type() {
-        let translator = TranslatorFactory::create_from_type(
-            TranslatorType::Baidu,
-            "test_app_id",
-            "test_key",
-        );
+        let translator =
+            TranslatorFactory::create_from_type(TranslatorType::Baidu, "test_app_id", "test_key");
         assert!(!translator.local());
 
         let translator = TranslatorFactory::create_from_type(
@@ -238,11 +256,7 @@ mod tests {
         );
         assert!(!translator.local());
 
-        let translator = TranslatorFactory::create_from_type(
-            TranslatorType::Alibaba,
-            "",
-            "",
-        );
+        let translator = TranslatorFactory::create_from_type(TranslatorType::Alibaba, "", "");
         assert!(!translator.local());
 
         let translator = TranslatorFactory::create_from_type(
@@ -252,11 +266,7 @@ mod tests {
         );
         assert!(!translator.local());
 
-        let translator = TranslatorFactory::create_from_type(
-            TranslatorType::MyMemory,
-            "",
-            "",
-        );
+        let translator = TranslatorFactory::create_from_type(TranslatorType::MyMemory, "", "");
         assert!(!translator.local());
     }
 }
