@@ -388,6 +388,7 @@ mod tests {
     /// 注意：此测试会计入API调用次数
     #[cfg(test)]
     #[tokio::test]
+    #[ignore]
     async fn test_translate_chinese_to_english() {
         dotenv::dotenv().ok();
         let app_key = std::env::var("YOUDAO_APP_KEY").expect("请设置 YOUDAO_APP_KEY 环境变量");
@@ -408,6 +409,7 @@ mod tests {
     /// 注意：此测试会计入API调用次数
     #[cfg(test)]
     #[tokio::test]
+    #[ignore]
     async fn test_translate_english_to_chinese() {
         dotenv::dotenv().ok();
         let app_key = std::env::var("YOUDAO_APP_KEY").expect("请设置 YOUDAO_APP_KEY 环境变量");

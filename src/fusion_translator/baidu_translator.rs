@@ -419,6 +419,7 @@ mod tests {
     /// 注意：此测试会计入API调用次数，可能受频率限制影响
     #[cfg(test)]
     #[tokio::test]
+    #[ignore]
     async fn test_translate_chinese_to_english() {
         dotenv::dotenv().ok();
         tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
@@ -461,6 +462,7 @@ mod tests {
     /// 注意：此测试会计入API调用次数，可能受频率限制影响
     #[cfg(test)]
     #[tokio::test]
+    #[ignore]
     async fn test_translate_english_to_chinese() {
         dotenv::dotenv().ok();
         tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;

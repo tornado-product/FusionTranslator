@@ -185,6 +185,7 @@ mod tests {
     /// 注意：此测试会计入API调用次数
     #[cfg(test)]
     #[tokio::test]
+    #[ignore]
     async fn test_translate_chinese_to_english() {
         dotenv::dotenv().ok();
         let token = std::env::var("CAIYUN_TOKEN").expect("请设置 CAIYUN_TOKEN 环境变量");
@@ -204,6 +205,7 @@ mod tests {
     /// 注意：此测试会计入API调用次数
     #[cfg(test)]
     #[tokio::test]
+    #[ignore]
     async fn test_translate_english_to_chinese() {
         dotenv::dotenv().ok();
         let token = std::env::var("CAIYUN_TOKEN").expect("请设置 CAIYUN_TOKEN 环境变量");

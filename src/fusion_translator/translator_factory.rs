@@ -199,6 +199,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[ignore]
     async fn test_create_baidu_translator() {
         let app_id = std::env::var("BAIDU_APP_ID").expect("请设置 BAIDU_APP_ID 环境变量");
         let key = std::env::var("BAIDU_KEY").expect("请设置 BAIDU_KEY 环境变量");
