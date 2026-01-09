@@ -1,0 +1,2 @@
+createSrcSidebar('[["fusion_translator",["",[["fusion_translator",[],["alibaba_translator.rs","async_translator.rs","baidu_translator.rs","caiyun_translator.rs","mod.rs","mymemory_translator.rs","translator_error.rs","translator_factory.rs","youdao_translator.rs"]]],["lib.rs"]]]]');
+//{"start":19,"fragment_lengths":[260]}
